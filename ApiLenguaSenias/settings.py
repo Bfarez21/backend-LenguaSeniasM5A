@@ -37,10 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'backendSenias'
+    'backendSenias',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -49,7 +51,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+# settings.py
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'ApiLenguaSenias.urls'
 
 TEMPLATES = [
@@ -80,9 +84,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',  # Usamos el backend de MySQL
         'NAME': 'lenguaseniasm5a',  # Reemplaza con el nombre de tu base de datos
         'USER': 'root',                   # Reemplaza con tu usuario de MySQL
-        'PASSWORD': '',            # Reemplaza con tu contraseña de MySQL
+        'PASSWORD': '123',            # Reemplaza con tu contraseña de MySQL
         'HOST': 'localhost',                    # Cambia esto si tu base de datos no está en localhost
-        'PORT': '3306',                         # Puerto por defecto de MySQL
+        'PORT': '3307',                         # Puerto por defecto de MySQL
     }
 }
 
