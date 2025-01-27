@@ -11,9 +11,8 @@ class Configuracion(models.Model):
         db_table = 'configuracion'
 
 class Usuario(models.Model):
-    correo_usu = models.CharField(max_length=100)
-    contrasenia_usu = models.CharField(max_length=100)
-    fk_id_con = models.OneToOneField(Configuracion, on_delete=models.CASCADE)  #relacion uno a uno
+    google_id = models.CharField(max_length=255, unique=True, null=False)
+    fk_id_con = models.OneToOneField(Configuracion, on_delete=models.CASCADE, null=True)  #relacion uno a uno
 
     class Meta:
         db_table = 'usuario'

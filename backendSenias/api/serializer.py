@@ -1,4 +1,4 @@
-from django.contrib.postgres import serializers, serializers
+
 #nos servirá para convertir objeto modelo django a tipos de datos que se
 # puede representar en formato JSON:
 
@@ -31,6 +31,7 @@ class IdiomaSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class TraduccionSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Traduccion
         fields = '__all__'

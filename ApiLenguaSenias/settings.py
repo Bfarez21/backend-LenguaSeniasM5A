@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-17qx--b-+%7cy_5)v##u_k_0s5dy!$2*f8$3ntm$mk+*8ih8vt
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -84,7 +84,11 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',  # Usamos el backend de MySQL
         'NAME': 'lenguaseniasm5a',  # Reemplaza con el nombre de tu base de datos
         'USER': 'root',                   # Reemplaza con tu usuario de MySQL
+<<<<<<< Updated upstream
         'PASSWORD': '123',            # Reemplaza con tu contraseña de MySQL
+=======
+        'PASSWORD': '1234',            # Reemplaza con tu contraseña de MySQL
+>>>>>>> Stashed changes
         'HOST': 'localhost',                    # Cambia esto si tu base de datos no está en localhost
         'PORT': '3307',                         # Puerto por defecto de MySQL
     }
@@ -131,3 +135,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Permitir todos los orígenes (solo en desarrollo, no en producción)
+CORS_ALLOW_ALL_ORIGINS = True
