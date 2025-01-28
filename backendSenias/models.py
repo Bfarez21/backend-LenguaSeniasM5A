@@ -68,3 +68,24 @@ class Logs(models.Model):
 
     class Meta:
         db_table = 'logs'
+
+class Categoria(models.Model):
+    nombre = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        db_table = 'categoria'
+
+    def __str__(self):
+        return self.nombre
+
+
+class Gif(models.Model):
+    nombre = models.CharField(max_length=100)
+    archivo = models.FileField(upload_to='gifs/')  # FileField to store the uploaded file
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name='gifs')
+
+    class Meta:
+        db_table = 'gif'
+
+    def __str__(self):
+        return self.nombre
