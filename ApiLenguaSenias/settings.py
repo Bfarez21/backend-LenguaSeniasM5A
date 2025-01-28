@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-17qx--b-+%7cy_5)v##u_k_0s5dy!$2*f8$3ntm$mk+*8ih8vt
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -52,7 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 # settings.py
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.52.41']
 CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'ApiLenguaSenias.urls'
 
@@ -85,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',  # Usamos el backend de MySQL
         'NAME': 'lenguaseniasm5a',  # Reemplaza con el nombre de tu base de datos
         'USER': 'root',                   # Reemplaza con tu usuario de MySQL
-        'PASSWORD': '123',            # Reemplaza con tu contraseña de MySQL
+        'PASSWORD': '',            # Reemplaza con tu contraseña de MySQL
         'HOST': 'localhost',                    # Cambia esto si tu base de datos no está en localhost
         'PORT': '3307',                         # Puerto por defecto de MySQL
     }
