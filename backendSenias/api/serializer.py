@@ -3,7 +3,7 @@ from django.contrib.postgres import serializers
 # puede representar en formato JSON:
 
 from rest_framework import serializers
-from backendSenias.models import Usuario,Configuracion,Perfil,Feedback,Idioma,Traduccion,Archivo,Logs,Categoria,Gif #importo todos los models/clases
+from backendSenias.models import Usuario,Configuracion,Perfil,Feedback,Idioma,Traduccion,Modelo,Archivo,Logs,Categoria,Gif #importo todos los models/clases
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,7 +34,10 @@ class TraduccionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Traduccion
         fields = '__all__'
-
+class ModeloSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Modelo
+        fields  = '__all__'
 class ArchivoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Archivo

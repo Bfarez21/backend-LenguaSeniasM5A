@@ -1,6 +1,6 @@
 
 from django.db import models
-
+from django.core.validators import FileExtensionValidator
 # Crear las clases o models correspondientes aqui
 class Configuracion(models.Model):
     idioma_con = models.CharField(max_length=50)
@@ -41,11 +41,36 @@ class Idioma(models.Model):
     class Meta:
         db_table = 'idioma'
 
+class Modelo(models.Model):
+        # Definición de los campos adicionales para Modelo
+        metadata_file = models.FileField(
+            upload_to='metadata/',
+            validators=[FileExtensionValidator(['json'])],
+            null=True,
+            blank=True)
+        model_file = models.FileField(
+            upload_to='models/',
+            validators=[FileExtensionValidator(['json'])],
+            null=True,
+            blank=True)
+        weights_file = models.FileField(
+            upload_to='weights/',
+            validators=[FileExtensionValidator(['bin'])],
+            null=True,
+            blank=True)
+        fecha_ingreso = models.DateTimeField(auto_now_add=True)  # Fecha de ingreso automáticamente asignada
+
+        class Meta:
+            db_table = 'modelo'  # Nombre de la tabla en la base de datos
+
+
 class Traduccion(models.Model):
     texto_tra = models.TextField()
     fecha_tra = models.DateTimeField()
     fk_id_usu = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     fk_id_idi = models.ManyToManyField(Idioma)
+    # Relación con el modelo Modelo a través de una clave foránea
+    fk_id_modelo = models.ForeignKey(Modelo, on_delete=models.CASCADE, default=1)
 
     class Meta:
         db_table = 'traduccion'

@@ -4,16 +4,17 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 
-from backendSenias.models import Usuario, Configuracion, Perfil, Feedback, Idioma, Traduccion, Archivo, Logs, Categoria, \
+from backendSenias.models import Usuario, Configuracion, Perfil, Feedback, Idioma, Traduccion, Modelo, Archivo, Logs, Categoria, \
     Gif  # importo todos los models/clases
 from backendSenias.api.serializer import UsuarioSerializer, ConfiguracionSerializer, PerfilSerializer, \
-    FeedbackSerializer, IdiomaSerializer, TraduccionSerializer, ArchivoSerializer, LogsSerializer, CategoriaSerializer, \
+    FeedbackSerializer, IdiomaSerializer, TraduccionSerializer, ArchivoSerializer, LogsSerializer, CategoriaSerializer,ModeloSerializer, \
     GifSerializer
 from rest_framework.parsers import MultiPartParser, FormParser  # Para manejar subidas de archivos
 from rest_framework.response import Response  # Para enviar respuestas personalizadas
 from backendSenias.models import Gif  # Tu modelo Gif
 from backendSenias.api.serializer import GifSerializer  # Serializador para Gif
-
+from backendSenias.models import Gif, Categoria
+from rest_framework import generics
 
 class UsuarioViewSet(viewsets.ModelViewSet):  # MOdelViewSet permitira crear nuestro crud
     queryset = Usuario.objects.all()
@@ -54,6 +55,9 @@ class TraduccionViewSet(viewsets.ModelViewSet):
     queryset = Traduccion.objects.all()
     serializer_class = TraduccionSerializer
 
+class ModeloViewSet(viewsets.ModelViewSet):
+    queryset = Modelo.objects.all()
+    serializer_class = ModeloSerializer
 
 class ArchivoViewSet(viewsets.ModelViewSet):
     queryset = Archivo.objects.all()
@@ -70,6 +74,7 @@ class CategoriaViewSet(viewsets.ModelViewSet):  # ViewSet para manejar las categ
     serializer_class = CategoriaSerializer
 
 
+# para guardar y obtener GIFs de la categoría "saludos"
 class GifViewSet(viewsets.ModelViewSet):
     queryset = Gif.objects.all()
     serializer_class = GifSerializer
@@ -81,3 +86,32 @@ class GifViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
+
+    @action(detail=False, methods=['get'], url_path='saludos')
+    def saludos(self, request):
+        try:
+            categoria_saludos = Categoria.objects.get(nombre='saludos')
+            gifs = Gif.objects.filter(categoria=categoria_saludos)
+            serializer = self.get_serializer(gifs, many=True)
+            return Response(serializer.data)
+        except Categoria.DoesNotExist:
+            return Response([])
+
+    @action(detail=False, methods=['get'])
+    def por_categoria(self, request):
+        categoria_id = request.query_params.get('id', None)
+        categoria_nombre = request.query_params.get('nombre', None)
+
+        if categoria_id:
+            gifs = self.queryset.filter(categoria_id=categoria_id)
+        elif categoria_nombre:
+            try:
+                categoria = Categoria.objects.get(nombre=categoria_nombre)
+                gifs = self.queryset.filter(categoria=categoria)
+            except Categoria.DoesNotExist:
+                return Response({"error": "Categoría no encontrada"}, status=404)
+        else:
+            return Response({"error": "Falta un identificador de categoría"}, status=400)
+
+        serializer = self.get_serializer(gifs, many=True)
+        return Response({"success": True, "data": serializer.data})
