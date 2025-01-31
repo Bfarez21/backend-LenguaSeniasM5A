@@ -3,7 +3,7 @@
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-
+from rest_framework.decorators import api_view
 from backendSenias.models import Usuario, Configuracion, Perfil, Feedback, Idioma, Traduccion, Modelo, Archivo, Logs, Categoria, \
     Gif  # importo todos los models/clases
 from backendSenias.api.serializer import UsuarioSerializer, ConfiguracionSerializer, PerfilSerializer, \
@@ -55,9 +55,27 @@ class TraduccionViewSet(viewsets.ModelViewSet):
     queryset = Traduccion.objects.all()
     serializer_class = TraduccionSerializer
 
+# ViewSet para manejar los modelos
 class ModeloViewSet(viewsets.ModelViewSet):
-    queryset = Modelo.objects.all()
+    queryset = Modelo.objects.all()  # Consulta todos los modelos
     serializer_class = ModeloSerializer
+
+# Endpoint para obtener los modelos sin depender del campo "activo"
+@api_view(['GET'])
+def obtener_modelo(request):
+    try:
+        # Obtenemos todos los modelos, puedes modificar esto para obtener solo ciertos tipos
+        modelos = Modelo.objects.all()
+        serializer = ModeloSerializer(modelos, many=True)
+        return Response({
+            'success': True,
+            'modelos': serializer.data
+        })
+    except Modelo.DoesNotExist:
+        return Response({
+            'success': False,
+            'error': 'No se encontraron modelos'
+        }, status=404)
 
 class ArchivoViewSet(viewsets.ModelViewSet):
     queryset = Archivo.objects.all()

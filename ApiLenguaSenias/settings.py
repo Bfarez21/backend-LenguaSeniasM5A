@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,10 +27,18 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# Añade estas configuraciones a tu archivo settings.py
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Si tu frontend está en un dominio diferente, necesitarás CORS
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Ajusta según tu configuración
+]
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.admin',  # ← Esta línea debe estar presente
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -52,7 +60,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 # settings.py
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.52.41','http://localhost:3000']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.52.41','http://localhost:3000','192.168.52.19','192.168.52.59' ]
 CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'ApiLenguaSenias.urls'
 

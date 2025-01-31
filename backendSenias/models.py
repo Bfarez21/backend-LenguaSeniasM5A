@@ -42,26 +42,19 @@ class Idioma(models.Model):
         db_table = 'idioma'
 
 class Modelo(models.Model):
-        # Definición de los campos adicionales para Modelo
-        metadata_file = models.FileField(
-            upload_to='metadata/',
-            validators=[FileExtensionValidator(['json'])],
-            null=True,
-            blank=True)
-        model_file = models.FileField(
-            upload_to='models/',
-            validators=[FileExtensionValidator(['json'])],
-            null=True,
-            blank=True)
-        weights_file = models.FileField(
-            upload_to='weights/',
-            validators=[FileExtensionValidator(['bin'])],
-            null=True,
-            blank=True)
-        fecha_ingreso = models.DateTimeField(auto_now_add=True)  # Fecha de ingreso automáticamente asignada
+    nombre = models.CharField(max_length=100, default="modelos")
+    descripcion = models.TextField(blank=True)
+    fecha_ingreso = models.DateTimeField(auto_now_add=True)
+    model_file = models.FileField(upload_to='modelos', default='model_file.json')
+    weights_file = models.FileField(upload_to='modelos', default='weights_file.bin')
+    metadata_file = models.FileField(upload_to='modelos', default='default_metadata_file.json')  # Valor por defecto
 
-        class Meta:
-            db_table = 'modelo'  # Nombre de la tabla en la base de datos
+    class Meta:
+        verbose_name = "Modelo"
+        verbose_name_plural = "Modelos"
+
+    def __str__(self):
+        return self.nombre
 
 
 class Traduccion(models.Model):

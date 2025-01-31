@@ -13,6 +13,8 @@ router.register('idioma', IdiomaViewSet, basename='idioma')
 router.register('traduccion', TraduccionViewSet, basename='traduccion')
 
 router.register('modelo', ModeloViewSet, basename='modelo')
+
+router.register('modelo-activo', ModeloViewSet, basename='modelo-activo')
 router.register('archivo', ArchivoViewSet, basename='archivo')
 router.register('logs', LogsViewSet, basename='logs')
 router.register('categoria', views.CategoriaViewSet, basename='categoria')
