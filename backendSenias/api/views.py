@@ -4,10 +4,10 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.decorators import api_view
-from backendSenias.models import Usuario, Configuracion, Perfil, Feedback, Idioma, Traduccion, Modelo, Archivo, Logs, Categoria, \
+from backendSenias.models import Usuario, Configuracion, Perfil, Feedback, Idioma, Traduccion, Modelo, Archivo, Logs, Juego, Partida, Nivel, Puntaje,Categoria, \
     Gif  # importo todos los models/clases
 from backendSenias.api.serializer import UsuarioSerializer, ConfiguracionSerializer, PerfilSerializer, \
-    FeedbackSerializer, IdiomaSerializer, TraduccionSerializer, ArchivoSerializer, LogsSerializer, CategoriaSerializer,ModeloSerializer, \
+    FeedbackSerializer, IdiomaSerializer, TraduccionSerializer, ArchivoSerializer, LogsSerializer, CategoriaSerializer,ModeloSerializer, JuegoSerializer, NivelSerializer, PartidaSerializer, PuntajeSerializer, \
     GifSerializer
 from rest_framework.parsers import MultiPartParser, FormParser  # Para manejar subidas de archivos
 from rest_framework.response import Response  # Para enviar respuestas personalizadas
@@ -91,6 +91,26 @@ class CategoriaViewSet(viewsets.ModelViewSet):  # ViewSet para manejar las categ
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
 
+# ViewSet para el modelo Juego
+class JuegoViewSet(viewsets.ModelViewSet):
+    queryset = Juego.objects.all()
+    serializer_class = JuegoSerializer
+
+# ViewSet para el modelo Nivel
+class NivelViewSet(viewsets.ModelViewSet):
+    queryset = Nivel.objects.all()
+    serializer_class = NivelSerializer
+
+# ViewSet para el modelo Partida
+class PartidaViewSet(viewsets.ModelViewSet):
+    queryset = Partida.objects.all()
+    serializer_class = PartidaSerializer
+
+# ViewSet para el modelo Puntaje
+class PuntajeViewSet(viewsets.ModelViewSet):
+    queryset = Puntaje.objects.all()
+    serializer_class = PuntajeSerializer
+
 
 # para guardar y obtener GIFs de la categoría "saludos"
 class GifViewSet(viewsets.ModelViewSet):
@@ -133,3 +153,15 @@ class GifViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(gifs, many=True)
         return Response({"success": True, "data": serializer.data})
+
+
+# endpoint para obtener gifs categoria letras
+    @action(detail=False, methods=['get'], url_path='letras')
+    def letras(self, request):
+        try:
+            categoria_letras = Categoria.objects.get(nombre='letras')
+            gifs = Gif.objects.filter(categoria=categoria_letras)
+            serializer = self.get_serializer(gifs, many=True)
+            return Response(serializer.data)
+        except Categoria.DoesNotExist:
+            return Response({"error": "Categoría 'letras' no encontrada"}, status=404)

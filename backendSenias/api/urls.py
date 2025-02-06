@@ -18,5 +18,10 @@ router.register('modelo-activo', ModeloViewSet, basename='modelo-activo')
 router.register('archivo', ArchivoViewSet, basename='archivo')
 router.register('logs', LogsViewSet, basename='logs')
 router.register('categoria', views.CategoriaViewSet, basename='categoria')
+
+router.register('partida', views.PartidaViewSet, basename='partida')
+router.register('puntaje', views.PuntajeViewSet, basename='puntaje')
+router.register('juego', views.JuegoViewSet, basename='juego')
+router.register('nivel', views.NivelViewSet, basename='nivel')
 router.register('gifs', GifViewSet, basename='gifs')
 urlpatterns = router.urls
