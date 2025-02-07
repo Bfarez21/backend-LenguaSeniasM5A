@@ -90,7 +90,7 @@ class JuegoSerializer(serializers.ModelSerializer):
 
 # Serializer para el modelo Nivel
 class NivelSerializer(serializers.ModelSerializer):
-    FK_id_juego = JuegoSerializer()  # Relacionamos con el modelo Juego
+    FK_id_juego = serializers.PrimaryKeyRelatedField(queryset=Juego.objects.all())
 
     class Meta:
         model = Nivel

@@ -129,6 +129,8 @@ class Partida(models.Model):
     resultado = models.IntegerField()
     FK_id_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     FK_id_juego = models.ForeignKey(Juego, on_delete=models.CASCADE)
+    FK_id_nivel = models.ForeignKey(Nivel, on_delete=models.CASCADE, null=True, default=1)
+
 
     def __str__(self):
         return f"Partida {self.id} - {self.FK_id_usuario.google_id}"

@@ -15,6 +15,8 @@ from backendSenias.models import Gif  # Tu modelo Gif
 from backendSenias.api.serializer import GifSerializer  # Serializador para Gif
 from backendSenias.models import Gif, Categoria
 from rest_framework import generics
+from django.utils.timezone import now
+
 
 class UsuarioViewSet(viewsets.ModelViewSet):  # MOdelViewSet permitira crear nuestro crud
     queryset = Usuario.objects.all()
@@ -96,6 +98,81 @@ class JuegoViewSet(viewsets.ModelViewSet):
     queryset = Juego.objects.all()
     serializer_class = JuegoSerializer
 
+    @action(detail=False, methods=['post'], url_path='guardar-progreso')
+    def guardar_progreso(self, request):
+        try:
+            print("📥 Datos recibidos en API:", request.data)
+
+            user_id = request.data.get("FK_id_usuario")
+            juego_id = request.data.get("FK_id_juego")
+            nivel_id = request.data.get("FK_id_nivel")
+            resultado = request.data.get("resultado")
+
+            if not user_id or not juego_id or not nivel_id:
+                print("❌ Falta algún dato en la solicitud")
+                return Response({"error": "Datos incompletos"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Verificar si el usuario existe
+            try:
+                usuario = Usuario.objects.get(id=user_id)
+            except Usuario.DoesNotExist:
+                print(f"❌ Usuario con ID {user_id} no encontrado.")
+                return Response({"error": "Usuario no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+            # Verificar si el juego existe
+            try:
+                juego = Juego.objects.get(id=juego_id)
+            except Juego.DoesNotExist:
+                print(f"❌ Juego con ID {juego_id} no encontrado.")
+                return Response({"error": "Juego no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+            # Verificar si el nivel existe
+            try:
+                nivel = Nivel.objects.get(id=nivel_id)
+            except Nivel.DoesNotExist:
+                print(f"❌ Nivel con ID {nivel_id} no encontrado.")
+                return Response({"error": "Nivel no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+            print(f"✅ Guardando partida: Usuario {user_id}, Juego {juego_id}, Nivel {nivel_id}, Resultado {resultado}")
+
+            # Guardar la partida
+            partida = Partida.objects.create(
+                FK_id_usuario=usuario,
+                FK_id_juego=juego,
+                FK_id_nivel=nivel,  # 🔹 Se añade el nivel a la partida
+                fecha_inicio=now(),
+                fecha_fin=now(),
+                resultado=resultado
+            )
+
+            # Guardar el puntaje
+            puntaje = Puntaje.objects.create(
+                FK_id_usuario=usuario,
+                FK_id_nivel=nivel,
+                puntaje_obtenido=resultado,
+                fecha_ob_puntaje=now()
+            )
+
+            # Guardar en logs
+            log = Logs.objects.create(
+                fk_id_usu=usuario,
+                mensaje_log=f"Partida guardada: Juego {juego.nombre_juego}, Nivel {nivel.dificultad_nivel}, Puntaje {resultado}",
+                fecha_log=now(),
+                leido_log=False
+            )
+            print(f"✅ Partida guardada correctamente. ID Partida: {partida.id}")
+            return Response({
+                "mensaje": "Progreso guardado exitosamente",
+                "partida": PartidaSerializer(partida).data,
+                "puntaje": PuntajeSerializer(puntaje).data,
+                "log": LogsSerializer(log).data
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            print(f"❌ Error al guardar progreso: {str(e)}")
+            return Response({"error": f"Error al guardar el progreso: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+
 # ViewSet para el modelo Nivel
 class NivelViewSet(viewsets.ModelViewSet):
     queryset = Nivel.objects.all()
@@ -112,7 +189,7 @@ class PuntajeViewSet(viewsets.ModelViewSet):
     serializer_class = PuntajeSerializer
 
 
-# para guardar y obtener GIFs de la categoría "saludos"
+# para guardar y obtener GIF de la categoría "saludos"
 class GifViewSet(viewsets.ModelViewSet):
     queryset = Gif.objects.all()
     serializer_class = GifSerializer
@@ -165,3 +242,33 @@ class GifViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         except Categoria.DoesNotExist:
             return Response({"error": "Categoría 'letras' no encontrada"}, status=404)
+
+# endpoint para obtener las estadisticas del juego en el usuario
+@api_view(['GET'])
+def obtener_estadisticas_usuario(request, google_id):
+    try:
+        usuario = Usuario.objects.get(google_id=google_id)
+        puntajes = Puntaje.objects.filter(FK_id_usuario=usuario)
+
+        # Organizar los datos por nivel
+        niveles_dict = {}
+        for puntaje in puntajes:
+            nivel = puntaje.FK_id_nivel
+            if nivel.id not in niveles_dict:
+                niveles_dict[nivel.id] = {
+                    "nombre": nivel.dificultad_nivel,
+                    "puntos": 0
+                }
+            niveles_dict[nivel.id]["puntos"] += puntaje.puntaje_obtenido
+
+        data = {
+            "usuario": usuario.google_id,
+            "total_puntos": sum([p.puntaje_obtenido for p in puntajes]),
+            "niveles": list(niveles_dict.values()),  # Convertimos en lista para el frontend
+        }
+
+        print("📊 Datos enviados al frontend:", data)  # Depuración
+
+        return Response(data, status=200)
+    except Usuario.DoesNotExist:
+        return Response({"error": "Usuario no encontrado"}, status=404)

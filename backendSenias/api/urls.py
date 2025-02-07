@@ -2,7 +2,8 @@
 
 # especificamos las rutas usando viewSet
 from rest_framework.routers import DefaultRouter
-from backendSenias.api.views import UsuarioViewSet,ConfiguracionViewSet,PerfilViewSet,FeedbackViewSet,IdiomaViewSet,TraduccionViewSet,ArchivoViewSet,LogsViewSet,ModeloViewSet,CategoriaViewSet,GifViewSet
+from django.urls import path
+from backendSenias.api.views import UsuarioViewSet,ConfiguracionViewSet,PerfilViewSet,FeedbackViewSet,IdiomaViewSet,TraduccionViewSet,ArchivoViewSet,LogsViewSet,ModeloViewSet,CategoriaViewSet,GifViewSet, obtener_estadisticas_usuario
 from . import views
 router = DefaultRouter()
 router.register('usuarios', UsuarioViewSet, basename='usuario')
@@ -24,4 +25,6 @@ router.register('puntaje', views.PuntajeViewSet, basename='puntaje')
 router.register('juego', views.JuegoViewSet, basename='juego')
 router.register('nivel', views.NivelViewSet, basename='nivel')
 router.register('gifs', GifViewSet, basename='gifs')
-urlpatterns = router.urls
+urlpatterns = router.urls + [
+    path('usuarios/estadisticas/<str:google_id>/', obtener_estadisticas_usuario, name="estadisticas_usuario"),
+]
