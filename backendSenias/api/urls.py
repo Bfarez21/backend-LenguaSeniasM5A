@@ -32,4 +32,5 @@ urlpatterns = router.urls + [
     path('usuarios/estadisticas/<str:google_id>/nivel/<int:nivel_id>/', obtener_estadisticas_por_nivel,
          name="estadisticas_por_nivel"),
     path('gifs_por_nivel/<int:categoria_id>/', obtener_gifs_por_categoria, name="obtener_gifs_por_categoria"),
+    path('usuarios/google/<str:google_id>/', views.get_user_by_google_id, name='user-by-google-id'),
 ]

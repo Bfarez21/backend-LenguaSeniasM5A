@@ -47,6 +47,20 @@ class FeedbackViewSet(viewsets.ModelViewSet):
     queryset = Feedback.objects.all()
     serializer_class = FeedbackSerializer
 
+@api_view(['GET'])
+def get_user_by_google_id(request, google_id):
+    try:
+        usuario = Usuario.objects.get(google_id=google_id)
+        return Response({
+            'id': usuario.id,
+            'google_id': usuario.google_id,
+            # otros campos que necesites
+        })
+    except Usuario.DoesNotExist:
+        return Response(
+            {'error': 'Usuario no encontrado'},
+            status=status.HTTP_404_NOT_FOUND
+        )
 
 class IdiomaViewSet(viewsets.ModelViewSet):
     queryset = Idioma.objects.all()
