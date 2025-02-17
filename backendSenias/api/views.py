@@ -101,7 +101,7 @@ class JuegoViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'], url_path='guardar-progreso')
     def guardar_progreso(self, request):
         try:
-            print("📥 Datos recibidos en API:", request.data)
+            #print("Datos recibidos en API:", request.data)
 
             user_id = request.data.get("FK_id_usuario")
             juego_id = request.data.get("FK_id_juego")
@@ -109,37 +109,37 @@ class JuegoViewSet(viewsets.ModelViewSet):
             resultado = request.data.get("resultado")
 
             if not user_id or not juego_id or not nivel_id:
-                print("❌ Falta algún dato en la solicitud")
+                #print("Falta algún dato en la solicitud")
                 return Response({"error": "Datos incompletos"}, status=status.HTTP_400_BAD_REQUEST)
 
             # Verificar si el usuario existe
             try:
                 usuario = Usuario.objects.get(id=user_id)
             except Usuario.DoesNotExist:
-                print(f"❌ Usuario con ID {user_id} no encontrado.")
+                #print(f"Usuario con ID {user_id} no encontrado.")
                 return Response({"error": "Usuario no encontrado"}, status=status.HTTP_404_NOT_FOUND)
 
             # Verificar si el juego existe
             try:
                 juego = Juego.objects.get(id=juego_id)
             except Juego.DoesNotExist:
-                print(f"❌ Juego con ID {juego_id} no encontrado.")
+                #print(f"Juego con ID {juego_id} no encontrado.")
                 return Response({"error": "Juego no encontrado"}, status=status.HTTP_404_NOT_FOUND)
 
             # Verificar si el nivel existe
             try:
                 nivel = Nivel.objects.get(id=nivel_id)
             except Nivel.DoesNotExist:
-                print(f"❌ Nivel con ID {nivel_id} no encontrado.")
+                #print(f" Nivel con ID {nivel_id} no encontrado.")
                 return Response({"error": "Nivel no encontrado"}, status=status.HTTP_404_NOT_FOUND)
 
-            print(f"✅ Guardando partida: Usuario {user_id}, Juego {juego_id}, Nivel {nivel_id}, Resultado {resultado}")
+            #print(f" Guardando partida: Usuario {user_id}, Juego {juego_id}, Nivel {nivel_id}, Resultado {resultado}")
 
             # Guardar la partida
             partida = Partida.objects.create(
                 FK_id_usuario=usuario,
                 FK_id_juego=juego,
-                FK_id_nivel=nivel,  # 🔹 Se añade el nivel a la partida
+                FK_id_nivel=nivel,
                 fecha_inicio=now(),
                 fecha_fin=now(),
                 resultado=resultado
@@ -160,7 +160,7 @@ class JuegoViewSet(viewsets.ModelViewSet):
                 fecha_log=now(),
                 leido_log=False
             )
-            print(f"✅ Partida guardada correctamente. ID Partida: {partida.id}")
+            #print(f"Partida guardada correctamente. ID Partida: {partida.id}")
             return Response({
                 "mensaje": "Progreso guardado exitosamente",
                 "partida": PartidaSerializer(partida).data,
@@ -169,7 +169,6 @@ class JuegoViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            print(f"❌ Error al guardar progreso: {str(e)}")
             return Response({"error": f"Error al guardar el progreso: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -214,6 +213,7 @@ class GifViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def por_categoria(self, request):
+
         categoria_id = request.query_params.get('id', None)
         categoria_nombre = request.query_params.get('nombre', None)
 
@@ -232,43 +232,100 @@ class GifViewSet(viewsets.ModelViewSet):
         return Response({"success": True, "data": serializer.data})
 
 
-# endpoint para obtener gifs categoria letras
-    @action(detail=False, methods=['get'], url_path='letras')
-    def letras(self, request):
-        try:
-            categoria_letras = Categoria.objects.get(nombre='letras')
-            gifs = Gif.objects.filter(categoria=categoria_letras)
-            serializer = self.get_serializer(gifs, many=True)
-            return Response(serializer.data)
-        except Categoria.DoesNotExist:
-            return Response({"error": "Categoría 'letras' no encontrada"}, status=404)
-
 # endpoint para obtener las estadisticas del juego en el usuario
 @api_view(['GET'])
 def obtener_estadisticas_usuario(request, google_id):
     try:
         usuario = Usuario.objects.get(google_id=google_id)
-        puntajes = Puntaje.objects.filter(FK_id_usuario=usuario)
+        # Obtener todos los niveles
+        niveles = Nivel.objects.all()
 
-        # Organizar los datos por nivel
-        niveles_dict = {}
-        for puntaje in puntajes:
-            nivel = puntaje.FK_id_nivel
-            if nivel.id not in niveles_dict:
-                niveles_dict[nivel.id] = {
-                    "nombre": nivel.dificultad_nivel,
-                    "puntos": 0
-                }
-            niveles_dict[nivel.id]["puntos"] += puntaje.puntaje_obtenido
+        niveles_stats = []
+        total_puntos = 0
+
+        for nivel in niveles:
+            puntajes_nivel = Puntaje.objects.filter(
+                FK_id_usuario=usuario,
+                FK_id_nivel=nivel
+            )
+            puntos_nivel = sum([p.puntaje_obtenido for p in puntajes_nivel])
+            total_puntos += puntos_nivel
+
+            niveles_stats.append({
+                "nombre": nivel.dificultad_nivel,
+                "puntos": puntos_nivel
+            })
 
         data = {
             "usuario": usuario.google_id,
-            "total_puntos": sum([p.puntaje_obtenido for p in puntajes]),
-            "niveles": list(niveles_dict.values()),  # Convertimos en lista para el frontend
+            "total_puntos": total_puntos,
+            "niveles": niveles_stats
         }
 
-        print("📊 Datos enviados al frontend:", data)  # Depuración
+        #print("📊 Datos enviados al frontend:", data)
+        return Response(data, status=200)
+    except Usuario.DoesNotExist:
+        return Response({"error": "Usuario no encontrado"}, status=404)
+
+
+
+@action(detail=False, methods=['get'], url_path='gifs_por_nivel/(?P<nivel>[a-zA-Z]+)')
+def gifs_por_nivel(self, request, nivel=None):
+    try:
+        if nivel.lower() == 'facil':
+            categoria = Categoria.objects.get(nombre='saludos')
+        elif nivel.lower() == 'medio':
+            categoria = Categoria.objects.get(nombre='frases_comunes')
+        elif nivel.lower() == 'dificil':
+            categoria = Categoria.objects.get(nombre='expresiones_avanzadas')
+        else:
+            return Response({"error": "Nivel no válido"}, status=400)
+
+        gifs = Gif.objects.filter(categoria=categoria)
+        serializer = GifSerializer(gifs, many=True)
+        return Response(serializer.data)
+    except Categoria.DoesNotExist:
+        return Response({"error": "Categoría no encontrada"}, status=404)
+
+@api_view(['GET'])
+def obtener_gifs_por_categoria(request, categoria_id):
+    """Devuelve solo los GIF que pertenecen a la categoría especificada (nivel)."""
+    try:
+        categoria = Categoria.objects.get(id=categoria_id)
+        gifs = Gif.objects.filter(categoria=categoria)
+
+        if not gifs.exists():
+            return Response({"error": "No hay GIFs disponibles para esta categoría"}, status=404)
+
+        serializer = GifSerializer(gifs, many=True)
+        return Response(serializer.data, status=200)
+
+    except Categoria.DoesNotExist:
+        return Response({"error": "Categoría no encontrada"}, status=404)
+
+
+@api_view(['GET'])
+def obtener_estadisticas_por_nivel(request, google_id, nivel_id):
+    try:
+        usuario = Usuario.objects.get(google_id=google_id)
+        nivel = Nivel.objects.get(id=nivel_id)
+
+        # Obtener todos los puntajes del usuario para este nivel específico
+        puntajes = Puntaje.objects.filter(
+            FK_id_usuario=usuario,
+            FK_id_nivel=nivel
+        )
+
+        total_puntos = sum([p.puntaje_obtenido for p in puntajes])
+
+        data = {
+            "nivel": nivel.dificultad_nivel,
+            "total_puntos": total_puntos,
+            "cantidad_partidas": puntajes.count()
+        }
 
         return Response(data, status=200)
     except Usuario.DoesNotExist:
         return Response({"error": "Usuario no encontrado"}, status=404)
+    except Nivel.DoesNotExist:
+        return Response({"error": "Nivel no encontrado"}, status=404)
