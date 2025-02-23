@@ -80,7 +80,7 @@ class Archivo(models.Model):
 class Logs(models.Model):
     mensaje_log = models.TextField()
     fecha_log = models.DateTimeField()
-    leido_log = models.BooleanField()
+    email_log = models.CharField(max_length=150, null=True)
     fk_id_usu = models.ForeignKey(Usuario, on_delete=models.CASCADE)
 
     class Meta:
