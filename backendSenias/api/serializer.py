@@ -3,7 +3,7 @@ from django.contrib.postgres import serializers
 # puede representar en formato JSON:
 from django.conf import settings
 from rest_framework import serializers
-from backendSenias.models import Usuario,Configuracion,Perfil,Feedback,Idioma,Traduccion,Modelo,Archivo,Logs,Categoria,Gif, Partida, Juego, Nivel, Puntaje #importo todos los models/clases
+from backendSenias.models import Usuario,Configuracion,Perfil,Feedback,Idioma,Traduccion,Modelo,Archivo,Logs,Categoria,Gif #importo todos los models/clases
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
@@ -82,34 +82,3 @@ class GifSerializer(serializers.ModelSerializer):
         model = Gif
         fields = ['id', 'nombre', 'archivo', 'categoria']
 
-# Serializer para el modelo Juego
-class JuegoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Juego
-        fields = ['id', 'nombre_juego', 'descripcion_jue']
-
-# Serializer para el modelo Nivel
-class NivelSerializer(serializers.ModelSerializer):
-    FK_id_juego = serializers.PrimaryKeyRelatedField(queryset=Juego.objects.all())
-
-    class Meta:
-        model = Nivel
-        fields = ['id', 'dificultad_nivel', 'descripcion_nivel', 'FK_id_juego']
-
-# Serializer para el modelo Partida
-class PartidaSerializer(serializers.ModelSerializer):
-    FK_id_usuario = serializers.StringRelatedField()  # Esto muestra el nombre de usuario
-    FK_id_juego = JuegoSerializer()  # Relacionamos con el modelo Juego
-
-    class Meta:
-        model = Partida
-        fields = ['id', 'fecha_inicio', 'fecha_fin', 'resultado', 'FK_id_usuario', 'FK_id_juego']
-
-# Serializer para el modelo Puntaje
-class PuntajeSerializer(serializers.ModelSerializer):
-    FK_id_usuario = serializers.StringRelatedField()  # Muestra el nombre del usuario
-    FK_id_nivel = NivelSerializer()  # Relacionamos con el modelo Nivel
-
-    class Meta:
-        model = Puntaje
-        fields = ['id', 'puntaje_obtenido', 'fecha_ob_puntaje', 'FK_id_usuario', 'FK_id_nivel']

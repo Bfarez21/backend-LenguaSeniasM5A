@@ -60,7 +60,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 # settings.py
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.52.41','http://localhost:3000','192.168.52.19','192.168.18.5' ]
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.52.41','http://localhost:3000','192.168.52.19','192.168.52.59' ]
 CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'ApiLenguaSenias.urls'
 
@@ -87,13 +87,13 @@ WSGI_APPLICATION = 'ApiLenguaSenias.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-#'HOST': 'mysql_alumni',
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  # Usamos el backend de MySQL
         'NAME': 'lenguaseniasm5a',  # Reemplaza con el nombre de tu base de datos
         'USER': 'root',                   # Reemplaza con tu usuario de MySQL
-        'PASSWORD': '1234',            # Reemplaza con tu contraseña de MySQL
+        'PASSWORD': '',            # Reemplaza con tu contraseña de MySQL
         'HOST': 'localhost',                    # Cambia esto si tu base de datos no está en localhost
         'PORT': '3306',                         # Puerto por defecto de MySQL
     }

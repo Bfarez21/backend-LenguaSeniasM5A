@@ -80,7 +80,7 @@ class Archivo(models.Model):
 class Logs(models.Model):
     mensaje_log = models.TextField()
     fecha_log = models.DateTimeField()
-    email_log = models.CharField(max_length=150, null=True)
+    leido_log = models.BooleanField()
     fk_id_usu = models.ForeignKey(Usuario, on_delete=models.CASCADE)
 
     class Meta:
@@ -106,40 +106,3 @@ class Gif(models.Model):
 
     def __str__(self):
         return self.nombre
-
-
-class Juego(models.Model):
-    nombre_juego = models.CharField(max_length=255)
-    descripcion_jue = models.TextField()
-
-    def __str__(self):
-        return self.nombre_juego
-
-class Nivel(models.Model):
-    dificultad_nivel = models.CharField(max_length=50)
-    descripcion_nivel = models.TextField()
-    FK_id_juego = models.ForeignKey(Juego, related_name='niveles', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.dificultad_nivel} - {self.FK_id_juego.nombre_juego}"
-
-class Partida(models.Model):
-    fecha_inicio = models.DateTimeField(auto_now_add=True)
-    fecha_fin = models.DateTimeField(auto_now=True)  # Fecha de fin se actualiza automáticamente en cada guardado
-    resultado = models.IntegerField()
-    FK_id_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    FK_id_juego = models.ForeignKey(Juego, on_delete=models.CASCADE)
-    FK_id_nivel = models.ForeignKey(Nivel, on_delete=models.CASCADE, null=True, default=1)
-
-
-    def __str__(self):
-        return f"Partida {self.id} - {self.FK_id_usuario.google_id}"
-
-class Puntaje(models.Model):
-    puntaje_obtenido = models.IntegerField()
-    fecha_ob_puntaje = models.DateTimeField(auto_now_add=True)
-    FK_id_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    FK_id_nivel = models.ForeignKey(Nivel, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"Puntaje de {self.FK_id_usuario.google_id} - {self.puntaje_obtenido} puntos"
