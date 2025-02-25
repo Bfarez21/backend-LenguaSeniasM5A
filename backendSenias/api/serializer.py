@@ -3,7 +3,7 @@ from django.contrib.postgres import serializers
 # puede representar en formato JSON:
 from django.conf import settings
 from rest_framework import serializers
-from backendSenias.models import Usuario,Configuracion,Perfil,Feedback,Idioma,Traduccion,Modelo,Archivo,Logs,Categoria,Gif, Partida, Juego, Nivel, Puntaje #importo todos los models/clases
+from backendSenias.models import Usuario,Configuracion,Perfil,Feedback,Idioma,Traduccion,Modelo,Archivo,Logs,Categoria,Gif, Partida, Juego, Nivel, Puntaje,Historial #importo todos los models/clases
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
@@ -113,3 +113,39 @@ class PuntajeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Puntaje
         fields = ['id', 'puntaje_obtenido', 'fecha_ob_puntaje', 'FK_id_usuario', 'FK_id_nivel']
+
+
+class HistorialCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Historial
+        fields = ['usuario', 'gif', 'fecha_hora']
+
+    def validate(self, data):
+        usuario = data.get('usuario')
+        gif = data.get('gif')
+
+        # Ejemplo: Verificar si el usuario existe
+        if not Usuario.objects.filter(id=usuario.id).exists():
+            raise serializers.ValidationError("El usuario no existe")
+
+        # Ejemplo: Verificar si el GIF existe
+        if not Gif.objects.filter(id=gif.id).exists():
+            raise serializers.ValidationError("El GIF no existe")
+
+        return data
+
+class HistorialSerializer(serializers.ModelSerializer):
+    gif_nombre = serializers.CharField(source='gif.nombre', read_only=True)
+    categoria_nombre = serializers.CharField(source='gif.categoria.nombre', read_only=True)
+    gif_url = serializers.SerializerMethodField()
+    usuario_google_id = serializers.CharField(source='usuario.google_id', read_only=True)  # ¡Nombre correcto!
+
+    class Meta:
+        model = Historial
+        fields = ['id', 'fecha_hora', 'gif_nombre', 'categoria_nombre', 'gif_url', 'usuario_google_id']
+
+    def get_gif_url(self, obj):
+        request = self.context.get('request')
+        if obj.gif.archivo:
+            return request.build_absolute_uri(obj.gif.archivo.url)
+        return None

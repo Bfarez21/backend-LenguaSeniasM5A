@@ -143,3 +143,12 @@ class Puntaje(models.Model):
 
     def __str__(self):
         return f"Puntaje de {self.FK_id_usuario.google_id} - {self.puntaje_obtenido} puntos"
+
+class Historial(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='historial')  # Relación con Usuario
+    gif = models.ForeignKey(Gif, on_delete=models.CASCADE, related_name='historial_gif')       # Relación con Gif
+    fecha_hora = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'historial'
+        ordering = ['-fecha_hora']

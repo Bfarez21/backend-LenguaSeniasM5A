@@ -5,10 +5,10 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.decorators import api_view
 from backendSenias.models import Usuario, Configuracion, Perfil, Feedback, Idioma, Traduccion, Modelo, Archivo, Logs, Juego, Partida, Nivel, Puntaje,Categoria, \
-    Gif  # importo todos los models/clases
+    Gif,Historial  # importo todos los models/clases
 from backendSenias.api.serializer import UsuarioSerializer, ConfiguracionSerializer, PerfilSerializer, \
     FeedbackSerializer, IdiomaSerializer, TraduccionSerializer, ArchivoSerializer, LogsSerializer, CategoriaSerializer,ModeloSerializer, JuegoSerializer, NivelSerializer, PartidaSerializer, PuntajeSerializer, \
-    GifSerializer
+    GifSerializer,HistorialSerializer,HistorialCreateSerializer
 from rest_framework.parsers import MultiPartParser, FormParser  # Para manejar subidas de archivos
 from rest_framework.response import Response  # Para enviar respuestas personalizadas
 from backendSenias.models import Gif  # Tu modelo Gif
@@ -343,3 +343,36 @@ def obtener_estadisticas_por_nivel(request, google_id, nivel_id):
         return Response({"error": "Usuario no encontrado"}, status=404)
     except Nivel.DoesNotExist:
         return Response({"error": "Nivel no encontrado"}, status=404)
+
+
+class HistorialViewSet(viewsets.ModelViewSet):
+    queryset = Historial.objects.all()
+    serializer_class = HistorialSerializer  # Serializador por defecto (lectura)
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return HistorialCreateSerializer  # Serializador para creación
+        return super().get_serializer_class()
+
+    def get_queryset(self):
+        google_id = self.request.query_params.get('usuario')
+
+        if not google_id:
+            return Response(
+                {"error": "El parámetro 'usuario' (google_id) es requerido."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            # Buscar el usuario por su google_id
+            usuario = Usuario.objects.get(google_id=google_id)
+            # Filtrar el historial por el id del usuario
+            return Historial.objects.filter(usuario=usuario.id)
+        except Usuario.DoesNotExist:
+            return Response(
+                {"error": "Usuario no encontrado"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+    def get_serializer_context(self):
+        return {'request': self.request}  # Añade esto

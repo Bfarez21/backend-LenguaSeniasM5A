@@ -4,7 +4,7 @@
 from rest_framework.routers import DefaultRouter
 from django.urls import path
 from backendSenias.api.views import UsuarioViewSet, ConfiguracionViewSet, PerfilViewSet, FeedbackViewSet, IdiomaViewSet, \
-    TraduccionViewSet, ArchivoViewSet, LogsViewSet, ModeloViewSet, CategoriaViewSet, GifViewSet, \
+    TraduccionViewSet, ArchivoViewSet, LogsViewSet, ModeloViewSet, CategoriaViewSet, GifViewSet,HistorialViewSet,\
     obtener_estadisticas_usuario, obtener_gifs_por_categoria, obtener_estadisticas_por_nivel
 from . import views
 router = DefaultRouter()
@@ -27,6 +27,8 @@ router.register('puntaje', views.PuntajeViewSet, basename='puntaje')
 router.register('juego', views.JuegoViewSet, basename='juego')
 router.register('nivel', views.NivelViewSet, basename='nivel')
 router.register('gifs', GifViewSet, basename='gifs')
+router.register('historial', HistorialViewSet, basename='historial')
+
 urlpatterns = router.urls + [
     path('usuarios/estadisticas/<str:google_id>/', obtener_estadisticas_usuario, name="estadisticas_usuario"),
     path('usuarios/estadisticas/<str:google_id>/nivel/<int:nivel_id>/', obtener_estadisticas_por_nivel,
